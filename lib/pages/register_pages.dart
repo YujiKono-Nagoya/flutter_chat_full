@@ -145,50 +145,39 @@ class _RegisterPageState extends State<RegisterPage> {
                   watch: true,
                 ),
 
-                const SizedBox(height: 10),
-
                 // confirm passwword textField
-                MyTextField(
-                    controller: confirmpasswordController,
-                    hintText: 'Password',
-                    watch: true),
 
-                const SizedBox(height: 100),
+                const SizedBox(height: 200),
                 //sugn in button
                 alreadySignedUp
-                    ? MyButton(onTap: signIn, text: 'ユーザー登録')
+                    ? MyButton(onTap: signIn, text: 'ログイン')
                     : MyButton(onTap: signUp, text: '新規作成'),
 
-                const SizedBox(height: 25),
-                TextButton(
-                    onPressed: () {
-                      setState(() {
-                        alreadySignedUp = !alreadySignedUp;
-                      });
-                    },
-                    child: Text(
-                      alreadySignedUp ? '新しくアカウントを作成' : '既にアカウントをお持ちですか',
-                      style: TextStyle(
-                          color: Colors.blue, fontWeight: FontWeight.bold),
-                    )),
+                const SizedBox(height: 30),
 
                 //not a member? register now
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('アカウントをお持ちですか？'),
-                    const SizedBox(height: 10),
+                    const Text('アカウントをお持ちではありませんか？'),
                     GestureDetector(
                       onTap: () {
                         setState(() {
                           alreadySignedUp = !alreadySignedUp;
                         });
                       },
-                      child: Text(
-                        'ログインはこちら',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.blue),
-                      ),
+                      child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              alreadySignedUp = !alreadySignedUp;
+                            });
+                          },
+                          child: Text(
+                            alreadySignedUp ? '新しくアカウントを作成' : '既にアカウントをお持ちですか',
+                            style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold),
+                          )),
                     ),
                   ],
                 )

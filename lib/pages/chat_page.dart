@@ -179,7 +179,19 @@ class _ChatPageState extends ConsumerState<ChatPage> {
     return Container(
       alignment: alignment,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: isCurrentUser
+            ? EdgeInsets.only(
+                right: 8,
+                bottom: 8,
+                top: 8,
+                left: 140,
+              )
+            : EdgeInsets.only(
+                left: 8,
+                bottom: 8,
+                top: 8,
+                right: 140,
+              ),
         child: Column(
           crossAxisAlignment:
               (data['senderId'] == _firebaseAuth.currentUser!.uid)
@@ -211,23 +223,29 @@ class _ChatPageState extends ConsumerState<ChatPage> {
       padding: const EdgeInsets.all(25.0),
       child: Row(
         children: [
-          //textField
           Expanded(
-            child: MyTextField(
+            child: TextField(
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
               controller: _messageController,
-              hintText: 'メッセージ',
-              watch: false,
+              obscureText: false,
+              decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey.shade400),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 2),
+                  ),
+                  hintText: 'メッセージ',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  suffixIcon: GestureDetector(
+                    onTap: sendMessage,
+                    child: Icon(
+                      Icons.send,
+                    ),
+                  )),
             ),
-          ),
-
-          // send button
-          IconButton(
-            onPressed: sendMessage,
-            icon: Icon(
-              Icons.arrow_upward,
-              size: 40,
-            ),
-          ),
+          )
         ],
       ),
     );
