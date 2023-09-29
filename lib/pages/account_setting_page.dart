@@ -154,7 +154,7 @@ class _AccountPageState extends State<AccountPage> {
                     SizedBox(height: 20),
                     MyTextField(
                       controller: _nameController,
-                      hintText: userData['uid'],
+                      hintText: '',
                       watch: false,
                     ),
                     SizedBox(height: 100),
