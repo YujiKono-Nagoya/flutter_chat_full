@@ -12,7 +12,6 @@ import 'package:image_picker/image_picker.dart';
 // import 'package:image_picker_web/image_picker_web.dart';
 
 import '../services/chat/chat_service.dart';
-import 'image_page.dart';
 import 'package:flutter_chat_full/resources/add.data.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
