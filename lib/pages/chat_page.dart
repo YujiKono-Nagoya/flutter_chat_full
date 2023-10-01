@@ -307,14 +307,21 @@ class _ChatPage2State extends ConsumerState<ChatPage2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: SafeArea(
         child: Column(
           children: [
-            Text(currentUserId),
-            Text(widget.receiverUserEmail),
-            Text(widget.receiverUserID),
-            Text(widget.userName),
+            Row(children: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(Icons.arrow_back)),
+              SizedBox(width: 20),
+              Text(
+                widget.userName,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              )
+            ]),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _chatService.getMessages(
@@ -341,23 +348,30 @@ class _ChatPage2State extends ConsumerState<ChatPage2> {
               padding: const EdgeInsets.all(25.0),
               child: Row(
                 children: [
-                  //textField
                   Expanded(
-                    child: MyTextField(
+                    child: TextField(
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
                       controller: _messageController,
-                      hintText: 'メッセージ',
-                      watch: false,
+                      obscureText: false,
+                      decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.black, width: 2),
+                          ),
+                          hintText: 'メッセージ',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          suffixIcon: GestureDetector(
+                            onTap: sendMessage,
+                            child: Icon(
+                              Icons.send,
+                            ),
+                          )),
                     ),
-                  ),
-
-                  // send button
-                  IconButton(
-                    onPressed: sendMessage,
-                    icon: Icon(
-                      Icons.arrow_upward,
-                      size: 40,
-                    ),
-                  ),
+                  )
                 ],
               ),
             )

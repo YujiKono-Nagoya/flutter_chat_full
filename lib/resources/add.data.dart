@@ -27,7 +27,8 @@ class StoreData {
     String resp = 'Some Error Occurred';
     try {
       if (name.isNotEmpty) {
-        String imageUrl = await uploadImageToStorage('profileImage', file);
+        String imageUrl =
+            await uploadImageToStorage('profileImage + $currentUserId', file);
         await _firestore.collection('users').doc(currentUserId).update({
           'email': currentUserEmail,
           'name': name,

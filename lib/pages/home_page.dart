@@ -35,104 +35,90 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     final keyword = ref.watch(keywordProvider);
     String keywordtext = _nameSerchController.text;
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Home Page'),
-      //   actions: [
-      //     IconButton(
-      //       onPressed: () async {
-      //         await FirebaseAuth.instance.signOut();
-      //       },
-      //       icon: Icon(Icons.logout),
-      //     ),
-      //   ],
-      // ),
-      body: SingleChildScrollView(child: SafeArea(
-        child: Consumer(
-          builder: (BuildContext context, WidgetRef ref, Widget? child) {
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '友達',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 25),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AccountPage()),
-                            );
-                          },
-                          icon: Icon(Icons.edit))
-                    ],
-                  ),
+      // appBar: AppBar(),
+      body: SingleChildScrollView(child: Consumer(
+        builder: (BuildContext context, WidgetRef ref, Widget? child) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '友達',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AccountPage()),
+                          );
+                        },
+                        icon: Icon(Icons.edit))
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 10),
-                          Icon(Icons.search),
-                          SizedBox(width: 10),
-                          Flexible(
-                            child: TextFormField(
-                              controller: _nameSerchController, // 初期値を変数から取得
-                              decoration: InputDecoration(
-                                suffixIcon: _searchValue.isEmpty
-                                    ? SizedBox()
-                                    : IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _searchValue = '';
-                                          });
-                                          setState(() {
-                                            _nameSerchController.clear();
-                                            // 値をクリア
-                                          });
-                                        },
-                                        icon: Icon(
-                                          Icons.cancel,
-                                        ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Row(
+                      children: [
+                        SizedBox(width: 10),
+                        Icon(Icons.search),
+                        SizedBox(width: 10),
+                        Flexible(
+                          child: TextFormField(
+                            controller: _nameSerchController, // 初期値を変数から取得
+                            decoration: InputDecoration(
+                              suffixIcon: _searchValue.isEmpty
+                                  ? SizedBox()
+                                  : IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _searchValue = '';
+                                        });
+                                        setState(() {
+                                          _nameSerchController.clear();
+                                          // 値をクリア
+                                        });
+                                      },
+                                      icon: Icon(
+                                        Icons.cancel,
                                       ),
-                                border: InputBorder.none,
-                                hintText: '検索',
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  _searchValue = value; // テキストが変更されたときに変数にセット
-                                });
-                              },
+                                    ),
+                              border: InputBorder.none,
+                              hintText: '検索',
                             ),
+                            onChanged: (value) {
+                              setState(() {
+                                _searchValue = value; // テキストが変更されたときに変数にセット
+                              });
+                            },
                           ),
-                        ],
-                      )),
-                ),
-                SizedBox(height: 20),
-                // _buildUserList(),
+                        ),
+                      ],
+                    )),
+              ),
+              SizedBox(height: 20),
+              // _buildUserList(),
 
-                _buildUserList2(),
-                // _buildUserList3(serchValue: _searchValue)
-                // _buildUserList4()
-              ],
-            );
-          },
-        ),
+              _buildUserList2(),
+              // _buildUserList3(serchValue: _searchValue)
+              // _buildUserList4()
+            ],
+          );
+        },
       )),
     );
   }
@@ -154,8 +140,8 @@ Widget _buildUserList2() {
                 itemCount: docs.length,
                 itemBuilder: (context, index) {
                   final user = docs[index].data() as Map<String, dynamic>;
-                  final String imageUrl = user['image'];
-                  String image = Uri.encodeFull(imageUrl);
+                  // final String imageUrl = user['image'];
+                  // String image = Uri.encodeFull(imageUrl);
                   return (_auth.currentUser!.email != user['email'])
                       ? StreamBuilder<Map<String, dynamic>>(
                           stream: getMessageData(user['uid']),
@@ -164,6 +150,7 @@ Widget _buildUserList2() {
                                 ConnectionState.waiting) {
                               return Text('Loading latest message...');
                             }
+                            final String imageUrl = user['image'];
 
                             if (snapshot.hasError) {
                               return GestureDetector(
@@ -317,8 +304,8 @@ Widget _buildUserList2() {
                                               imageUrl == ''
                                                   ? ClipOval(
                                                       child: Container(
-                                                      width: 70,
-                                                      height: 70,
+                                                      width: 50,
+                                                      height: 50,
                                                       color: Colors.amber,
                                                       child: CircleAvatar(
                                                         radius: 64,
@@ -329,7 +316,7 @@ Widget _buildUserList2() {
                                                     ))
                                                   : ClipOval(
                                                       child: Image.network(
-                                                        imageUrl,
+                                                        user['image'],
                                                         width:
                                                             50, // 画像の幅を調整する場合、必要に応じて変更してください
                                                         height:

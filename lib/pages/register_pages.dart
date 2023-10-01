@@ -24,6 +24,21 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController confirmpasswordController = TextEditingController();
 
   bool alreadySignedUp = false;
+  bool emailInvalidValidation = false;
+  bool emailNotfoundValidation = false;
+  bool emailAlreadyValidation = false;
+  bool passwordWeakValidation = false;
+  bool passwordInvalidValidation = false;
+  bool passwordNotfoundValidation = false;
+  bool emailvalidation = false;
+  bool passwordvalidation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    emailvalidation = false;
+    passwordvalidation = false;
+  }
 
   void signUp() async {
     try {
@@ -37,29 +52,79 @@ class _RegisterPageState extends State<RegisterPage> {
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .set({
         'email': emailController.text.trim(),
-        'name': '', // ユーザーに入力させた名前を取得する
+        'name': 'No name', // ユーザーに入力させた名前を取得する
         'image': '', // デフォルトの画像パスを指定する
         'uid': userCredential.user!.uid
       });
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
+      if (emailController.text == '') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('この項目は必須です'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ));
+        setState(() {
+          emailvalidation = true;
+          emailNotfoundValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            emailvalidation = false;
+            emailNotfoundValidation = false;
+          });
+        });
+      } else if (e.code == 'email-already-in-use') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('既に使用されているメールアドレスです'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ));
+        setState(() {
+          emailvalidation = true;
+          emailAlreadyValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            emailvalidation = false;
+            emailAlreadyValidation = false;
+          });
+        });
       } else if (e.code == 'weak-password') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('パスワードは最低でも６文字以上です'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ));
+        setState(() {
+          passwordvalidation = true;
+          passwordWeakValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            passwordvalidation = false;
+            passwordWeakValidation = false;
+          });
+        });
       } else if (e.code == 'invalid-email') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('メールアドレスが正しくありません'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ));
+        setState(() {
+          emailvalidation = true;
+          emailInvalidValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            emailvalidation = false;
+            emailInvalidValidation = false;
+          });
+        });
       }
     }
   }
@@ -72,24 +137,74 @@ class _RegisterPageState extends State<RegisterPage> {
         password: passwordController.text.trim(),
       );
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
+      if (emailController.text == '') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('この項目は必須です'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ));
+        setState(() {
+          emailvalidation = true;
+          emailNotfoundValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            emailvalidation = false;
+            emailNotfoundValidation = false;
+          });
+        });
+      } else if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('登録されていないメールアドレスです'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ));
+        setState(() {
+          emailvalidation = true;
+          emailNotfoundValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            emailvalidation = false;
+            emailNotfoundValidation = false;
+          });
+        });
       } else if (e.code == 'wrong-password') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('パスワードが違います'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ));
+        setState(() {
+          passwordvalidation = true;
+          passwordInvalidValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            passwordvalidation = false;
+            passwordInvalidValidation = false;
+          });
+        });
       } else if (e.code == 'invalid-email') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('メールアドレスが正しくありません'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ));
+        setState(() {
+          emailvalidation = true;
+          emailInvalidValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            emailvalidation = false;
+            emailInvalidValidation = false;
+          });
+        });
       }
     }
   }
@@ -115,73 +230,81 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 50),
-                //logo
-                Text('Chat App',
-                    style:
-                        TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
+        child: SingleChildScrollView(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50),
+                  //logo
+                  Text('Chat App',
+                      style:
+                          TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
 
-                const SizedBox(height: 50),
+                  const SizedBox(height: 50),
 
-                //email textfield
-                MyTextField(
-                  controller: emailController,
-                  hintText: 'Email',
-                  watch: false,
-                ),
+                  //email textfield
+                  MyEmailTextField(
+                    controller: emailController,
+                    hintText: 'Email',
+                    watch: false,
+                    emailvalidation: emailvalidation,
+                  ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                //password textField
-                MyTextField(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  watch: true,
-                ),
+                  const SizedBox(height: 10),
 
-                // confirm passwword textField
+                  //password textField
+                  MyPasswordTextField(
+                    controller: passwordController,
+                    hintText: 'Password',
+                    watch: true,
+                    passwordvalidation: passwordvalidation,
+                  ),
 
-                const SizedBox(height: 200),
-                //sugn in button
-                alreadySignedUp
-                    ? MyButton(onTap: signIn, text: 'ログイン')
-                    : MyButton(onTap: signUp, text: '新規作成'),
+                  // confirm passwword textField
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 100),
+                  //sugn in button
+                  alreadySignedUp
+                      ? MyButton(onTap: signIn, text: 'ログイン')
+                      : MyButton(onTap: signUp, text: '新規作成'),
 
-                //not a member? register now
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('アカウントをお持ちではありませんか？'),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          alreadySignedUp = !alreadySignedUp;
-                        });
-                      },
-                      child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              alreadySignedUp = !alreadySignedUp;
-                            });
-                          },
-                          child: Text(
-                            alreadySignedUp ? '新しくアカウントを作成' : '既にアカウントをお持ちですか',
-                            style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold),
-                          )),
-                    ),
-                  ],
-                )
-              ],
+                  const SizedBox(height: 30),
+
+                  //not a member? register now
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('アカウントをお持ちではありませんか？'),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            alreadySignedUp = !alreadySignedUp;
+                          });
+                        },
+                        child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                alreadySignedUp = !alreadySignedUp;
+                              });
+                            },
+                            child: Text(
+                              alreadySignedUp
+                                  ? '新しくアカウントを作成'
+                                  : '既にアカウントをお持ちですか',
+                              style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold),
+                            )),
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),
