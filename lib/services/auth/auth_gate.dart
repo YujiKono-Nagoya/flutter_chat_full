@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_full/pages/login_page.dart';
 import 'package:flutter_chat_full/pages/register_pages.dart';
 
 import '../../pages/home_page.dart';
@@ -64,7 +65,7 @@ class _AuthGate2State extends State<AuthGate2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      // appBar: AppBar(),
       body: _isSinedIn ? HomePage() : RegisterPage(),
     );
   }

@@ -6,6 +6,7 @@ import 'package:flutter_chat_full/pages/account_setting_page.dart';
 import 'package:flutter_chat_full/services/auth/auth_gate.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 import '../services/chat/chat_service.dart';
 import 'chat_page.dart';
@@ -40,421 +41,405 @@ class _HomePageState extends ConsumerState<HomePage> {
     String keywordtext = _nameSerchController.text;
     return Scaffold(
       // appBar: AppBar(),
-      body: SingleChildScrollView(child: Consumer(
-        builder: (BuildContext context, WidgetRef ref, Widget? child) {
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '友達',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-                    ),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AccountPage()),
-                          );
-                        },
-                        icon: Icon(Icons.edit))
-                  ],
+      body: SafeArea(
+        child: Consumer(
+          builder: (BuildContext context, WidgetRef ref, Widget? child) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '友達',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 25),
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AccountPage()),
+                            );
+                          },
+                          icon: Icon(Icons.edit))
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(5)),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 10),
-                        Icon(Icons.search),
-                        SizedBox(width: 10),
-                        Flexible(
-                          child: TextFormField(
-                            controller: _nameSerchController, // 初期値を変数から取得
-                            decoration: InputDecoration(
-                              suffixIcon: _searchValue.isEmpty
-                                  ? SizedBox()
-                                  : IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _searchValue = '';
-                                        });
-                                        setState(() {
-                                          _nameSerchController.clear();
-                                          // 値をクリア
-                                        });
-                                      },
-                                      icon: Icon(
-                                        Icons.cancel,
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(5)),
+                      child: Row(
+                        children: [
+                          SizedBox(width: 10),
+                          Icon(Icons.search),
+                          SizedBox(width: 10),
+                          Flexible(
+                            child: TextFormField(
+                              controller: _nameSerchController, // 初期値を変数から取得
+                              decoration: InputDecoration(
+                                suffixIcon: _searchValue.isEmpty
+                                    ? SizedBox()
+                                    : IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _searchValue = '';
+                                          });
+                                          setState(() {
+                                            _nameSerchController.clear();
+                                            // 値をクリア
+                                          });
+                                        },
+                                        icon: Icon(
+                                          Icons.cancel,
+                                        ),
                                       ),
-                                    ),
-                              border: InputBorder.none,
-                              hintText: '検索',
+                                border: InputBorder.none,
+                                hintText: '検索',
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchValue = value; // テキストが変更されたときに変数にセット
+                                });
+                              },
                             ),
-                            onChanged: (value) {
-                              setState(() {
-                                _searchValue = value; // テキストが変更されたときに変数にセット
-                              });
-                            },
                           ),
-                        ),
-                      ],
-                    )),
-              ),
-              SizedBox(height: 20),
-              // _buildUserList(),
+                        ],
+                      )),
+                ),
+                SizedBox(height: 20),
+                // _buildUserList(),
 
-              _buildUserList2(),
-              // _buildUserList3(serchValue: _searchValue)
-              // _buildUserList4()
-            ],
-          );
-        },
-      )),
+                Expanded(child: _buildUserList2()),
+                // _buildUserList3(serchValue: _searchValue)
+                // _buildUserList4()
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 }
 
 Widget _buildUserList2() {
-  return SingleChildScrollView(
-    child: Consumer(
-      builder: (context, ref, child) {
-        final users = ref.watch(usersStreamProvider);
-        final keyword = ref.watch(keywordProvider);
-        return users.when(
-            data: (data) {
-              final docs = data.docs
-                  .where((element) => (element['name'].contains(_searchValue)))
-                  .toList();
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: docs.length,
-                itemBuilder: (context, index) {
-                  final user = docs[index].data() as Map<String, dynamic>;
-                  // final String imageUrl = user['image'];
-                  // String image = Uri.encodeFull(imageUrl);
-                  return (_auth.currentUser!.email != user['email'])
-                      ? StreamBuilder<Map<String, dynamic>>(
-                          stream: getMessageData(user['uid']),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Text('Loading latest message...');
-                            }
-                            final String imageUrl = user['image'];
+  return Consumer(
+    builder: (context, ref, child) {
+      final users = ref.watch(usersStreamProvider);
+      final keyword = ref.watch(keywordProvider);
+      return users.when(
+          data: (data) {
+            final docs = data.docs
+                .where((element) => (element['name'].contains(_searchValue)))
+                .toList();
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                final user = docs[index].data() as Map<String, dynamic>;
+                // final String imageUrl = user['image'];
+                // String image = Uri.encodeFull(imageUrl);
+                return (_auth.currentUser!.email != user['email'])
+                    ? StreamBuilder<Map<String, dynamic>>(
+                        stream: getMessageData(user['uid']),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Text('Loading latest message...');
+                          }
+                          final String imageUrl = user['image'];
 
-                            if (snapshot.hasError) {
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: ((context) => ChatPage2(
-                                          receiverUserEmail: user['email'],
-                                          receiverUserID: user['uid'],
-                                          userName: user['name'])),
-                                    ),
-                                  );
-                                },
-                                child: Container(
+                          if (snapshot.hasError) {
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: ((context) => ChatPage2(
+                                        receiverUserEmail: user['email'],
+                                        receiverUserID: user['uid'],
+                                        userName: user['name'])),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Colors.grey),
+                                  ),
+                                ),
+                                child: ListTile(
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          imageUrl == ''
+                                              ? ClipOval(
+                                                  child: Container(
+                                                  width: 50,
+                                                  height: 50,
+                                                  color: Colors.amber,
+                                                  child: CircleAvatar(
+                                                    radius: 64,
+                                                    backgroundImage: NetworkImage(
+                                                        'https://www.pngitem.com/pimgs/m/421-4212266_transparent-default-avatar-png-default-avatar-images-png.png'),
+                                                  ),
+                                                ))
+                                              : ClipOval(
+                                                  child: Image.network(
+                                                    imageUrl,
+                                                    width:
+                                                        50, // 画像の幅を調整する場合、必要に応じて変更してください
+                                                    height:
+                                                        50, // 画像の高さを調整する場合、必要に応じて変更してください
+                                                    fit: BoxFit
+                                                        .cover, // 画像をウィジェットにフィットさせる方法を指定します
+                                                  ),
+                                                ),
+                                          SizedBox(width: 10),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                user['name'],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Icon(Icons.arrow_forward_ios),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          Map<String, dynamic> readUserData = snapshot.data!;
+                          String latestmessage = readUserData['latestmessage'];
+                          String readUser = readUserData['readUser'];
+                          Timestamp latesttimestamp =
+                              readUserData['latesttimestamp'];
+
+                          void _addReadUser() {
+                            if (readUser != currentUserId &&
+                                readUser !=
+                                    currentUserId + ', ' + user['uid']) {
+                              _chatService.sendreadUser(
+                                  user['uid'],
+                                  latesttimestamp,
+                                  currentUserId + ', ' + user['uid'],
+                                  latestmessage);
+                            }
+                          }
+
+                          return StreamBuilder<QuerySnapshot>(
+                              stream: getReadUserList(user['uid']),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Text('Loading latest message...');
+                                }
+                                if (snapshot.hasError) {
+                                  return Text('');
+                                }
+                                final messageData = snapshot.data!.docs;
+                                List<String> readUserList = messageData
+                                    .map((doc) =>
+                                        (doc['readUser'] as List).join(', '))
+                                    .toList();
+                                int readUserCount = 0;
+                                if (readUserData['readUser'] ==
+                                    currentUserId + ', ' + user['uid']) {
+                                  readUserCount = 0;
+                                }
+
+                                for (String userId in readUserList) {
+                                  if (readUser != currentUserId &&
+                                      readUser !=
+                                          currentUserId + ', ' + user['uid'] &&
+                                      userId != currentUserId &&
+                                      userId !=
+                                          currentUserId + ', ' + user['uid']) {
+                                    readUserCount++;
+                                  } else {
+                                    break; // currentUserId を見つけたらループを終了
+                                  }
+                                }
+                                String readUserCountString =
+                                    readUserCount.toString();
+
+                                return Container(
                                   decoration: BoxDecoration(
                                     border: Border(
                                       bottom: BorderSide(color: Colors.grey),
                                     ),
                                   ),
                                   child: ListTile(
-                                    title: Column(
+                                    title: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Row(
-                                              children: [
-                                                imageUrl == ''
-                                                    ? ClipOval(
-                                                        child: Container(
-                                                        width: 50,
-                                                        height: 50,
-                                                        color: Colors.amber,
-                                                        child: CircleAvatar(
-                                                          radius: 64,
-                                                          backgroundImage:
-                                                              NetworkImage(
-                                                                  'https://www.pngitem.com/pimgs/m/421-4212266_transparent-default-avatar-png-default-avatar-images-png.png'),
-                                                        ),
-                                                      ))
-                                                    : ClipOval(
-                                                        child: Image.network(
-                                                          imageUrl,
-                                                          width:
-                                                              50, // 画像の幅を調整する場合、必要に応じて変更してください
-                                                          height:
-                                                              50, // 画像の高さを調整する場合、必要に応じて変更してください
-                                                          fit: BoxFit
-                                                              .cover, // 画像をウィジェットにフィットさせる方法を指定します
-                                                        ),
-                                                      ),
-                                                SizedBox(width: 10),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      user['name'],
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 20),
+                                            imageUrl == ''
+                                                ? ClipOval(
+                                                    child: Container(
+                                                    width: 50,
+                                                    height: 50,
+                                                    color: Colors.amber,
+                                                    child: CircleAvatar(
+                                                      radius: 64,
+                                                      backgroundImage: NetworkImage(
+                                                          'https://www.pngitem.com/pimgs/m/421-4212266_transparent-default-avatar-png-default-avatar-images-png.png'),
                                                     ),
-                                                  ],
+                                                  ))
+                                                : ClipOval(
+                                                    child: Image.network(
+                                                      user['image'],
+                                                      width:
+                                                          50, // 画像の幅を調整する場合、必要に応じて変更してください
+                                                      height:
+                                                          50, // 画像の高さを調整する場合、必要に応じて変更してください
+                                                      fit: BoxFit
+                                                          .cover, // 画像をウィジェットにフィットさせる方法を指定します
+                                                    ),
+                                                  ),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  user['name'],
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 20),
+                                                ),
+                                                Text(
+                                                  readUserData['latestmessage'],
                                                 ),
                                               ],
+                                            )
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Column(
+                                              children: [
+                                                SizedBox(
+                                                  child: StreamBuilder<
+                                                      Map<String, dynamic>>(
+                                                    stream: getMessageData(
+                                                        user['uid']),
+                                                    builder:
+                                                        ((context, snapshot) {
+                                                      if (snapshot
+                                                              .connectionState ==
+                                                          ConnectionState
+                                                              .waiting) {
+                                                        return Text(
+                                                            'Loading latest message...');
+                                                      }
+
+                                                      if (snapshot.hasError) {
+                                                        return Text('');
+                                                      }
+
+                                                      Map<String, dynamic>?
+                                                          messageData =
+                                                          snapshot.data!;
+                                                      if (messageData[
+                                                              'latesttimestamp'] ==
+                                                          null) {
+                                                        return Text('');
+                                                      }
+
+                                                      Timestamp timestamp =
+                                                          messageData[
+                                                              'latesttimestamp'];
+                                                      DateTime dateTime =
+                                                          timestamp.toDate();
+                                                      String sendtime =
+                                                          DateFormat('HH:mm')
+                                                              .format(dateTime);
+                                                      String sendate =
+                                                          DateFormat('MM/dd')
+                                                              .format(dateTime);
+                                                      return Text(sendate);
+                                                    }),
+                                                  ),
+                                                ),
+                                                readUserCount == 0
+                                                    ? SizedBox()
+                                                    : SizedBox(
+                                                        child: Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    color: Colors
+                                                                        .orange),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(8.0),
+                                                              child: Text(
+                                                                readUserCountString,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                            )),
+                                                      ),
+                                              ],
                                             ),
+                                            SizedBox(width: 10),
                                             Icon(Icons.arrow_forward_ios),
                                           ],
-                                        )
+                                        ),
                                       ],
                                     ),
+                                    onTap: () async {
+                                      _addReadUser();
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: ((context) => ChatPage(
+                                              receiverUserEmail: user['email'],
+                                              receiverUserID: user['uid'],
+                                              readUserList: readUserList,
+                                              userName: user['name'])),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                ),
-                              );
-                            }
-                            Map<String, dynamic> readUserData = snapshot.data!;
-                            String latestmessage =
-                                readUserData['latestmessage'];
-                            String readUser = readUserData['readUser'];
-                            Timestamp latesttimestamp =
-                                readUserData['latesttimestamp'];
-
-                            void _addReadUser() {
-                              if (readUser != currentUserId &&
-                                  readUser !=
-                                      currentUserId + ', ' + user['uid']) {
-                                _chatService.sendreadUser(
-                                    user['uid'],
-                                    latesttimestamp,
-                                    currentUserId + ', ' + user['uid'],
-                                    latestmessage);
-                              }
-                            }
-
-                            return StreamBuilder<QuerySnapshot>(
-                                stream: getReadUserList(user['uid']),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Text('Loading latest message...');
-                                  }
-                                  if (snapshot.hasError) {
-                                    return Text('');
-                                  }
-                                  final messageData = snapshot.data!.docs;
-                                  List<String> readUserList = messageData
-                                      .map((doc) =>
-                                          (doc['readUser'] as List).join(', '))
-                                      .toList();
-                                  int readUserCount = 0;
-                                  if (readUserData['readUser'] ==
-                                      currentUserId + ', ' + user['uid']) {
-                                    readUserCount = 0;
-                                  }
-
-                                  for (String userId in readUserList) {
-                                    if (readUser != currentUserId &&
-                                        readUser !=
-                                            currentUserId +
-                                                ', ' +
-                                                user['uid'] &&
-                                        userId != currentUserId &&
-                                        userId !=
-                                            currentUserId +
-                                                ', ' +
-                                                user['uid']) {
-                                      readUserCount++;
-                                    } else {
-                                      break; // currentUserId を見つけたらループを終了
-                                    }
-                                  }
-                                  String readUserCountString =
-                                      readUserCount.toString();
-
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Colors.grey),
-                                      ),
-                                    ),
-                                    child: ListTile(
-                                      title: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              imageUrl == ''
-                                                  ? ClipOval(
-                                                      child: Container(
-                                                      width: 50,
-                                                      height: 50,
-                                                      color: Colors.amber,
-                                                      child: CircleAvatar(
-                                                        radius: 64,
-                                                        backgroundImage:
-                                                            NetworkImage(
-                                                                'https://www.pngitem.com/pimgs/m/421-4212266_transparent-default-avatar-png-default-avatar-images-png.png'),
-                                                      ),
-                                                    ))
-                                                  : ClipOval(
-                                                      child: Image.network(
-                                                        user['image'],
-                                                        width:
-                                                            50, // 画像の幅を調整する場合、必要に応じて変更してください
-                                                        height:
-                                                            50, // 画像の高さを調整する場合、必要に応じて変更してください
-                                                        fit: BoxFit
-                                                            .cover, // 画像をウィジェットにフィットさせる方法を指定します
-                                                      ),
-                                                    ),
-                                              SizedBox(width: 10),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    user['name'],
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 20),
-                                                  ),
-                                                  Text(
-                                                    readUserData[
-                                                        'latestmessage'],
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Column(
-                                                children: [
-                                                  SizedBox(
-                                                    child: StreamBuilder<
-                                                        Map<String, dynamic>>(
-                                                      stream: getMessageData(
-                                                          user['uid']),
-                                                      builder:
-                                                          ((context, snapshot) {
-                                                        if (snapshot
-                                                                .connectionState ==
-                                                            ConnectionState
-                                                                .waiting) {
-                                                          return Text(
-                                                              'Loading latest message...');
-                                                        }
-
-                                                        if (snapshot.hasError) {
-                                                          return Text('');
-                                                        }
-
-                                                        Map<String, dynamic>?
-                                                            messageData =
-                                                            snapshot.data!;
-                                                        if (messageData[
-                                                                'latesttimestamp'] ==
-                                                            null) {
-                                                          return Text('');
-                                                        }
-
-                                                        Timestamp timestamp =
-                                                            messageData[
-                                                                'latesttimestamp'];
-                                                        DateTime dateTime =
-                                                            timestamp.toDate();
-                                                        String sendtime =
-                                                            DateFormat('HH:mm')
-                                                                .format(
-                                                                    dateTime);
-                                                        String sendate =
-                                                            DateFormat('MM/dd')
-                                                                .format(
-                                                                    dateTime);
-                                                        return Text(sendate);
-                                                      }),
-                                                    ),
-                                                  ),
-                                                  readUserCount == 0
-                                                      ? SizedBox()
-                                                      : SizedBox(
-                                                          child: Container(
-                                                              decoration: BoxDecoration(
-                                                                  shape: BoxShape
-                                                                      .circle,
-                                                                  color: Colors
-                                                                      .orange),
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        8.0),
-                                                                child: Text(
-                                                                  readUserCountString,
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white),
-                                                                ),
-                                                              )),
-                                                        ),
-                                                ],
-                                              ),
-                                              SizedBox(width: 10),
-                                              Icon(Icons.arrow_forward_ios),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      onTap: () async {
-                                        _addReadUser();
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: ((context) => ChatPage(
-                                                receiverUserEmail:
-                                                    user['email'],
-                                                receiverUserID: user['uid'],
-                                                readUserList: readUserList,
-                                                userName: user['name'])),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                  ;
-                                });
-                          })
-                      : SizedBox();
-                },
-              );
-            },
-            error: (err, stack) => const Center(
-                  child: Text('データを取得できませんでした'),
-                ),
-            loading: () => const Center(
-                  child: CircularProgressIndicator(),
-                ));
-      },
-    ),
+                                );
+                                ;
+                              });
+                        })
+                    : SizedBox();
+              },
+            );
+          },
+          error: (err, stack) => const Center(
+                child: Text('データを取得できませんでした'),
+              ),
+          loading: () => const Center(
+                child: CircularProgressIndicator(),
+              ));
+    },
   );
 }
 
@@ -787,4 +772,18 @@ StreamBuilder<QuerySnapshot> getMessages() {
       return Text('User ID: $userId');
     },
   );
+}
+
+class CustomScrollBehavior extends ScrollBehavior {
+  const CustomScrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
+  }
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const ClampingScrollPhysics();
 }

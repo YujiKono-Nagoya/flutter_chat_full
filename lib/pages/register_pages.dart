@@ -74,6 +74,23 @@ class _RegisterPageState extends State<RegisterPage> {
             emailNotfoundValidation = false;
           });
         });
+      } else if (passwordController.text == '') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('この項目は必須です'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ));
+        setState(() {
+          passwordvalidation = true;
+          passwordNotfoundValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            passwordvalidation = false;
+            passwordNotfoundValidation = false;
+          });
+        });
       } else if (e.code == 'email-already-in-use') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('既に使用されているメールアドレスです'),
@@ -152,6 +169,23 @@ class _RegisterPageState extends State<RegisterPage> {
           setState(() {
             emailvalidation = false;
             emailNotfoundValidation = false;
+          });
+        });
+      } else if (passwordController.text == '') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('この項目は必須です'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ));
+        setState(() {
+          passwordvalidation = true;
+          passwordNotfoundValidation = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          setState(() {
+            passwordvalidation = false;
+            passwordNotfoundValidation = false;
           });
         });
       } else if (e.code == 'user-not-found') {
